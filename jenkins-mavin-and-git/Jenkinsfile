@@ -2,4 +2,7 @@ node{
     stage('SCM Checkout'){
         git 'https://github.com/mmadsen340/udemy_jenkins_ansible'
     }
+    stage('Compile-Package'){
+        sh 'mvn -f jenkins-mavin-and-git/pom.xml package'
+    }
 }
