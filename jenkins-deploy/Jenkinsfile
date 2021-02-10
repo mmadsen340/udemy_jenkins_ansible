@@ -8,7 +8,7 @@ node{
         sh "${mvnHome}/bin/mvn -f jenkins-mavin-and-git/pom.xml package"
     }
     stage('Deploy to Tomcat'){
-      sshagent(['48a33a71-91c1-4b9a-9d8f-c40067b16688']) {
+      sshagent(['jenkins_ssh']) {
          sh 'scp -o StrictHostKeyChecking=no target/*.war jenkins@192.168.86.18:/opt/tomcat/webapps/'
       }
    }
