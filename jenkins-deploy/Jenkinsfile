@@ -1,0 +1,24 @@
+node{
+    stage('SCM Checkout'){
+        git 'https://github.com/mmadsen340/udemy_jenkins_ansible'
+    }
+    stage('Compile-Package'){
+        // Get maven home path (this is for mvn command not found)
+        def mvnHome = tool name: 'maven-3', type: 'maven'
+        sh "${mvnHome}/bin/mvn -f jenkins-mavin-and-git/pom.xml package"
+    }
+    stage('SonarQube Analysis') { // Adding SonarQube Quality Gate
+        def mvnHome = tool name: 'maven-3', type: 'maven'
+        withSonarQubeEnv('mikes_lab_sonarqube') {
+            sh "${mvnHome}/bin/mvn -f jenkins-mavin-and-git/pom.xml sonar:sonar"
+        }
+    }
+    stage("Quality Gate Status Check"){ //Status check for SonarQube Quality Gate
+          timeout(time: 1, unit: 'HOURS') {
+              def qg = waitForQualityGate()
+              if (qg.status != 'OK') {
+                  error "Pipeline aborted due to quality gate failure: ${qg.status}"
+              }
+          }
+      }
+}
