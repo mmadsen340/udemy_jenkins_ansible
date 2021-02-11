@@ -6,13 +6,13 @@ node{
        stage('Download-Package'){
             withAWS(region:'us-east-1',credentials:'artifact_repository') 
             {
-                s3Download(bucket: 'artifact-repository-807271945287', file: 'myweb-0.0.12.war', force: true, path: 'jenkins-deploy/')
+                s3Download(bucket: 'artifact-repository-807271945287', file: 'target/', force: true, path: 'jenkins-deploy/')
             }
         }
     }
     stage('Deploy to Tomcat'){
       sshagent(['jenkins_ssh']) {
-         sh 'scp -o StrictHostKeyChecking=no jenkins-deploy/target/*.war jenkins@192.168.86.18:/opt/tomcat/webapps/'
+         sh 'scp -o StrictHostKeyChecking=no target/*.war jenkins@192.168.86.18:/opt/tomcat/webapps/'
       }
    }
 }
