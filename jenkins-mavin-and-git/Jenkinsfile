@@ -23,9 +23,9 @@ node{
       }
     stage('Upload-Package'){
         steps {
-            withAWS(region:'us-east-1',credentials:'artifact_repository') {
-        
-        s3Upload(bucket: 'artifact-repository-807271945287', file: 'jenkins-deploy/target/*.war', path: 'jenkins-deploy/')
+            withAWS(region:'us-east-1',credentials:'artifact_repository') 
+            {
+                s3Upload(bucket: 'artifact-repository-807271945287', file: 'jenkins-mavin-and-git/target/*.war', path: 'jenkins-deploy/')
             }
         }
     }   
