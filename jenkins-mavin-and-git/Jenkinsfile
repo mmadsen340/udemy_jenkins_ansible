@@ -25,7 +25,7 @@ node{
         steps {
             withAWS(region:'us-east-1',credentials:'artifact_repository') {
         
-        s3Upload(bucket:'artifact-repository-807271945287' file: 'jenkins-deploy/target/*.war', path:'jenkins-deploy/'
+        s3Upload(bucket: 'artifact-repository-807271945287' file: 'jenkins-deploy/target/*.war', path: 'jenkins-deploy/'
             }
         }
     }   
