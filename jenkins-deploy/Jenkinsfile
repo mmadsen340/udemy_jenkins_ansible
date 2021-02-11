@@ -6,7 +6,7 @@ node{
        stage('Download-Package'){
             withAWS(region:'us-east-1',credentials:'artifact_repository') 
             {
-                s3Download(bucket: 'artifact-repository-807271945287', file: 'jenkins-deploy/target/myweb-0.0.12.war', path: 'jenkins-deploy/')
+                s3Download(bucket: 'artifact-repository-807271945287', file: 'jenkins-deploy/target/myweb-0.0.12.war', force: true, path: 'jenkins-deploy/')
             }
         }
     }
