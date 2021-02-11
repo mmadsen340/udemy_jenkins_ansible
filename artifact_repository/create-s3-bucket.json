@@ -1,0 +1,44 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Resources": {
+    "S3Bucketapps": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "Private",
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        },
+        "BucketName": {
+          "Fn::Join": [
+            "-",
+            [
+              "artifact-repository",
+              {
+                "Ref": "AWS::AccountId"
+              }
+            ]
+          ]
+        },
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      }
+    }
+  },  
+
+  "Outputs": {
+    "BucketName" : {
+      "Value": {
+        "Ref": "S3Bucketapps"
+      },
+      "Description": "Name of the Amazon S3 bucket that will store artifacts for Jenkins Pipelines"
+    }
+  }
+}
