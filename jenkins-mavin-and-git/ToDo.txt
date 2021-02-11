@@ -1,1 +1,2 @@
 look for a way to get sonarqube into docker
+Connect to Artifactory for artifact storage and container repos
