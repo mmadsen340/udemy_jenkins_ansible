@@ -1,4 +1,8 @@
-node{    
+node{ 
+    environment {
+        DOCKER_TAG = getVersion()
+    }
+   
     stage('SCM Checkout'){
         git 'https://github.com/mmadsen340/udemy_jenkins_ansible.git'
     }    
@@ -18,12 +22,28 @@ node{
               if (qg.status != 'OK') {
                   error "Pipeline aborted due to quality gate failure: ${qg.status}"
               }
-          }
-      }
+        }
+    }
     stage('Upload-Package'){
             withAWS(region:'us-east-1',credentials:'artifact_repository') 
             {
                 s3Upload(bucket: 'artifact-repository-807271945287', file: 'dockeransiblejenkins/target/dockeransible.war', path: 'dockeransible/')
             }
+    }
+    stage('Download Approved war file'){
+       stage('Download-Package'){
+            withAWS(region:'us-east-1',credentials:'artifact_repository') 
+            {
+                s3Download(bucket: 'artifact-repository-807271945287', file: 'target/', force: true, path: 'dockeransible/')
+            }
         }
+    }
+    stage('Docker Build'){
+       sh "docker build -t kammana/hariapp:${DOCKER_TAG}" 
+    }
+}
+
+def getVersion(){
+    def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
+    return commitHash
 }
