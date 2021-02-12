@@ -1,38 +1,53 @@
 pipeline{ 
+    agent any
+    tools {
+      maven 'maven-3'
+    }
     environment {
         DOCKER_TAG = getVersion()
     }
    
     stages{
         stage('SCM Checkout'){
-            git 'https://github.com/mmadsen340/udemy_jenkins_ansible.git'
+            steps{
+                git credentialsId: 'github',
+                    url 'https://github.com/mmadsen340/udemy_jenkins_ansible.git'
+            }        
         }    
         stage('Maven Build'){
+            steps{
             def mvnHome = tool name: 'maven-3', type: 'maven'
             sh "${mvnHome}/bin/mvn -f dockeransiblejenkins/pom.xml clean package"
             }
+        }    
         stage('SonarQube Analysis') {
+            steps{
             def mvnHome = tool name: 'maven-3', type: 'maven'
             withSonarQubeEnv('mikes_lab_sonarqube') {
                 sh "${mvnHome}/bin/mvn -f dockeransiblejenkins/pom.xml sonar:sonar"
             }
+        } 
         }
         stage("Quality Gate Status Check"){ //Status check for SonarQube Quality Gate
+            steps{
             timeout(time: 1, unit: 'HOURS') {
                 def qg = waitForQualityGate()
                 if (qg.status != 'OK') {
                     error "Pipeline aborted due to quality gate failure: ${qg.status}"
                 }
+            } 
             }
         }
         stage('Upload-Package'){
+            steps{
                 withAWS(region:'us-east-1',credentials:'artifact_repository') 
                 {
                     s3Upload(bucket: 'artifact-repository-807271945287', file: 'dockeransiblejenkins/target/dockeransible.war', path: 'dockeransible/')
                 }
         }
+        }
         stage('Download Approved war file'){
-        stage('Download-Package'){
+            steps{
                 withAWS(region:'us-east-1',credentials:'artifact_repository') 
                 {
                     s3Download(bucket: 'artifact-repository-807271945287', file: 'target/', force: true, path: 'dockeransible/')
@@ -40,8 +55,10 @@ pipeline{
             }
         }
         stage('Docker Build'){
-        sh "docker build -t kammana/hariapp:${DOCKER_TAG}" 
+            steps{
+                sh "docker build -t kammana/hariapp:${DOCKER_TAG}" 
         }
+    }
     }
 }
 
