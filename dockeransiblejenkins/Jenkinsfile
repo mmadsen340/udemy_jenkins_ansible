@@ -1,61 +1,45 @@
-pipeline{ 
-    agent any
-    tools {
-      maven 'maven-3'
-    }
-    environment {
-        DOCKER_TAG = getVersion()
-    }
-   
-    stages{
-        stage('SCM'){
-            steps{
-                git credentialsId: 'github',
-                    url 'https://github.com/mmadsen340/udemy_jenkins_ansible.git'
-            }        
-        }    
-        stage('Maven Build'){
-            steps{
-                sh "mvn -f dockeransiblejenkins/pom.xml clean package"
-            }
-        }    
-        stage('SonarQube Analysis') {
-            steps{
-                withSonarQubeEnv('mikes_lab_sonarqube') {
-                    sh "mvn -f dockeransiblejenkins/pom.xml sonar:sonar"
+node{    
+    stage('SCM'){
+            git credentialsId: 'github',
+                url 'https://github.com/mmadsen340/udemy_jenkins_ansible.git'
+        }        
+
+    stage('Maven Build'){
+            sh "mvn -f dockeransiblejenkins/pom.xml clean package"
+        }
+
+    stage('SonarQube Analysis') {
+            withSonarQubeEnv('mikes_lab_sonarqube') {
+                sh "mvn -f dockeransiblejenkins/pom.xml sonar:sonar"
+            } 
+        }
+    stage("Quality Gate Status Check"){
+            timeout(time: 1, unit: 'HOURS') {
+                def qg = waitForQualityGate()
+                if (qg.status != 'OK') {
+                    error "Pipeline aborted due to quality gate failure: ${qg.status}"
                 }
             } 
-            steps{
-                timeout(time: 1, unit: 'HOURS') {
-                    def qg = waitForQualityGate()
-                    if (qg.status != 'OK') {
-                        error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                    }
-                } 
+        }
+
+    stage('Upload-Package'){
+            withAWS(region:'us-east-1',credentials:'artifact_repository') 
+            {
+                s3Upload(bucket: 'artifact-repository-807271945287', file: 'dockeransiblejenkins/target/dockeransible.war', path: 'dockeransible/')
             }
         }
-        stage('Upload-Package'){
-            steps{
-                withAWS(region:'us-east-1',credentials:'artifact_repository') 
-                {
-                    s3Upload(bucket: 'artifact-repository-807271945287', file: 'dockeransiblejenkins/target/dockeransible.war', path: 'dockeransible/')
-                }
+
+    stage('Download Approved war file'){
+            withAWS(region:'us-east-1',credentials:'artifact_repository') 
+            {
+                s3Download(bucket: 'artifact-repository-807271945287', file: 'target/', force: true, path: 'dockeransible/')
             }
         }
-        stage('Download Approved war file'){
-            steps{
-                withAWS(region:'us-east-1',credentials:'artifact_repository') 
-                {
-                    s3Download(bucket: 'artifact-repository-807271945287', file: 'target/', force: true, path: 'dockeransible/')
-                }
-            }
+    
+    stage('Docker Build'){
+        def DOCKER_TAG = getVersion()
+            sh "docker build -t kammana/hariapp:${DOCKER_TAG}" 
         }
-        stage('Docker Build'){
-            steps{
-                sh "docker build -t kammana/hariapp:${DOCKER_TAG}" 
-            }
-        }
-    }
 }
 
 def getVersion(){
