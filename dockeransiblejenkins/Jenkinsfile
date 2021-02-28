@@ -39,7 +39,7 @@ node{
     
     stage('Docker Build'){
         def DOCKER_TAG = getVersion()
-            sh "docker build . -t kammana/hariapp:${DOCKER_TAG}"
+            sh "docker build dockeransiblejenkins/ -t kammana/hariapp:${DOCKER_TAG}"
         }
 }
 
