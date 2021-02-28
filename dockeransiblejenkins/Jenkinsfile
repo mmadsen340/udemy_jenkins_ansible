@@ -1,4 +1,4 @@
-node{    
+node{
     stage('SCM Checkout'){
         git 'https://github.com/mmadsen340/udemy_jenkins_ansible.git'
     }        
@@ -39,7 +39,7 @@ node{
     
     stage('Docker Build'){
         def DOCKER_TAG = getVersion()
-            sh "docker build -t kammana/hariapp:${DOCKER_TAG}" 
+            sh "docker build . -t kammana/hariapp:${DOCKER_TAG}"
         }
 }
 
