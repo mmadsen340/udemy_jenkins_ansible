@@ -49,11 +49,11 @@ node{
 
     stage('Docker tag'){
             def DOCKER_TAG = getVersion()
-            sh "docker tag kammana/hariapp:${DOCKER_TAG} 807271945287.dkr.ecr.us-east-1.amazonaws.com/hariapp:${DOCKER_TAG}"
+            sh "docker tag kammana/hariapp:${DOCKER_TAG} 807271945287.dkr.ecr.us-east-1.amazonaws.com/hariapp-${DOCKER_TAG}"
         }
 
     stage('Docker push'){
             def DOCKER_TAG = getVersion()
-            sh "docker push 807271945287.dkr.ecr.us-east-1.amazonaws.com/hariapp:${DOCKER_TAG}"
+            sh "docker push 807271945287.dkr.ecr.us-east-1.amazonaws.com/hariapp-${DOCKER_TAG}"
         }
   }
