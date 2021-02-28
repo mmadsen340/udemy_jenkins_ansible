@@ -1,3 +1,12 @@
+def getVersion(){
+    def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
+    return commitHash
+}
+
+def DOCKER_TAG(){
+    return getVersion()
+}
+
 node{
     stage('SCM Checkout'){
         git 'https://github.com/mmadsen340/udemy_jenkins_ansible.git'
@@ -38,12 +47,14 @@ node{
         }
     
     stage('Docker Build'){
-        def DOCKER_TAG = getVersion()
             sh "docker build dockeransiblejenkins/ -t kammana/hariapp:${DOCKER_TAG}"
         }
-}
 
-def getVersion(){
-    def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
-    return commitHash
-}
+    stage('Docker tag'){
+            sh "docker tag kammana/hariapp:${DOCKER_TAG} 807271945287.dkr.ecr.us-east-1.amazonaws.com/hariapp:${DOCKER_TAG}"
+        }
+
+    stage('Docker push'){
+            sh "docker push 807271945287.dkr.ecr.us-east-1.amazonaws.com/hariapp:${DOCKER_TAG}"
+        }
+  }
