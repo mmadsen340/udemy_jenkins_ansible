@@ -22,9 +22,8 @@ node{
 
     stage('Docker Build'){
       steps{
-        script {
-          dockerImage = docker.build imagename
+         sh "docker build dockeransiblejenkins/ -t kammana/hariapp:${DOCKER_TAG}"
         }
       }
-    }
+
   }
