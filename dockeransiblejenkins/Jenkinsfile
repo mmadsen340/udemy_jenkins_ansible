@@ -1,17 +1,17 @@
-def getVersion(){
-    def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
-    return commitHash
-}
+pipeline {
+  environment {
+    imagename = "ismailtest"
+    ecrurl = "https://828556645578.dkr.ecr.us-east-2.amazonaws.com"
+    ecrcredentials = "ecr:us-east-2:ecr-ismail"
+    dockerImage = ''
+  }
 
-environment {
-   imagename = "kammana/hariapp:${DOCKER_TAG}"
-   DOCKER_TAG = getVersion()
-}
-
-node{
-    stage('SCM Checkout'){
-        git 'https://github.com/mmadsen340/udemy_jenkins_ansible.git'
-    }
+  stages {
+    stage('Cloning Git') {
+      steps {
+                checkout scm
+             }
+         }
 
     stage('Download Approved war file'){
             withAWS(region:'us-east-1',credentials:'artifact_repository') 
@@ -20,10 +20,17 @@ node{
             }
         }
 
-    stage('Docker Build'){
+    stage('Building image') {
       steps{
-         sh "docker build dockeransiblejenkins/ -t kammana/hariapp:${DOCKER_TAG}"
+        script {
+          dockerImage = docker.build imagename
         }
       }
+    }
 
   }
+
+def getVersion(){
+    def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
+    return commitHash
+}
