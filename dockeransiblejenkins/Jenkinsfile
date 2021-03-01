@@ -23,7 +23,7 @@ pipeline {
       steps{
             withAWS(region:'us-east-1',credentials:'artifact_repository') 
             {
-                s3Download(bucket: 'artifact-repository-807271945287', file: 'target/', force: true, path: 'dockeransible/')
+                s3Download(bucket: 'artifact-repository-807271945287', file: 'target/', force: true)
             }
        }
     }
