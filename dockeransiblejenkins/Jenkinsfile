@@ -30,7 +30,7 @@ pipeline {
 
     stage('Building image') {
       steps{
-        sh "docker build dockeransiblejenkins/ -t imagename"
+        sh "docker build dockeransiblejenkins/ -t $imagename"
       }
     }
   }
