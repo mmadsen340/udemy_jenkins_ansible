@@ -1,17 +1,16 @@
 pipeline {
   environment {
-    imagename = "ismailtest"
+    imagename = "kammana/hariapp:${DOCKER_TAG}"
+    DOCKER_TAG = getVersion()
     ecrurl = "https://828556645578.dkr.ecr.us-east-2.amazonaws.com"
     ecrcredentials = "ecr:us-east-2:ecr-ismail"
     dockerImage = ''
-  }
+    }
 
   stages {
-    stage('Cloning Git') {
-      steps {
-                checkout scm
-             }
-         }
+    stage('SCM Checkout'){
+        git 'https://github.com/mmadsen340/udemy_jenkins_ansible.git'
+    }
 
     stage('Download Approved war file'){
             withAWS(region:'us-east-1',credentials:'artifact_repository') 
@@ -27,7 +26,6 @@ pipeline {
         }
       }
     }
-
   }
 
 def getVersion(){
