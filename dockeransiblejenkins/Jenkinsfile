@@ -35,9 +35,9 @@ pipeline {
 
     stage('Push Docker Image') {
       steps{
-        docker.withRegistry("ecrurl")
+        docker.withRegistry("$ecrurl")
         {
-           sh "docker push $ecrurl/$imagename"
+           sh "docker push $imagename"
         }
       }
     }
