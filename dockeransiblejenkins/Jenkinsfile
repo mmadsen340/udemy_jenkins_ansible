@@ -3,37 +3,15 @@ def getVersion(){
     return commitHash
 }
 
+environment {
+   imagename = "kammana/hariapp:${DOCKER_TAG}"
+   DOCKER_TAG = getVersion()
+}
+
 node{
     stage('SCM Checkout'){
         git 'https://github.com/mmadsen340/udemy_jenkins_ansible.git'
-    }        
-
-    stage('Maven Build'){
-        def mvnHome = tool name: 'maven-3', type: 'maven'
-        sh "${mvnHome}/bin/mvn -f dockeransiblejenkins/pom.xml clean package"
-        }
-
-    stage('SonarQube Analysis') {
-        def mvnHome = tool name: 'maven-3', type: 'maven'
-        withSonarQubeEnv('mikes_lab_sonarqube') {
-          sh "${mvnHome}/bin/mvn -f dockeransiblejenkins/pom.xml sonar:sonar"
-            } 
-        }
-    stage("Quality Gate Status Check"){
-            timeout(time: 1, unit: 'HOURS') {
-                def qg = waitForQualityGate()
-                if (qg.status != 'OK') {
-                    error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                }
-            } 
-        }
-
-    stage('Upload-Package'){
-            withAWS(region:'us-east-1',credentials:'artifact_repository') 
-            {
-                s3Upload(bucket: 'artifact-repository-807271945287', file: 'dockeransiblejenkins/target/dockeransible.war', path: 'dockeransible/')
-            }
-        }
+    }
 
     stage('Download Approved war file'){
             withAWS(region:'us-east-1',credentials:'artifact_repository') 
@@ -43,37 +21,8 @@ node{
         }
 
     stage('Docker Build'){
-            def DOCKER_TAG = getVersion()
-            sh "docker build dockeransiblejenkins/ -t kammana/hariapp:${DOCKER_TAG}"
-        }
-
-    stage('Deploy Master Image') {
-   when {
-      anyOf {
-            branch 'master'
-      }
-     }
       steps{
         script {
-          docker.withRegistry(ecrurl, ecrcredentials) {
-            dockerImage.push("$BUILD_NUMBER")
-             dockerImage.push('latest')
-
-          }
+          dockerImage = docker.build imagename
         }
       }
-    }
-
-
-    stage('Remove Unused docker image - Master') {
-      when {
-      anyOf {
-            branch 'master'
-      }
-     }
-      steps{
-        sh "docker rmi $imagename:$BUILD_NUMBER"
-         sh "docker rmi $imagename:latest"
-
-      }
-  }
