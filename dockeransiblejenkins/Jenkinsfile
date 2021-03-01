@@ -41,6 +41,10 @@ node{
                 s3Download(bucket: 'artifact-repository-807271945287', file: 'target/', force: true, path: 'dockeransible/')
             }
         }
+
+    stage('Docker Login')
+            sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 807271945287.dkr.ecr.us-east-1.amazonaws.com"
+        }
     
     stage('Docker Build'){
             def DOCKER_TAG = getVersion()
@@ -49,11 +53,11 @@ node{
 
     stage('Docker tag'){
             def DOCKER_TAG = getVersion()
-            sh "docker tag kammana/hariapp:${DOCKER_TAG} 807271945287.dkr.ecr.us-east-1.amazonaws.com/hariapp:latest"
+            sh "docker tag kammana/hariapp:${DOCKER_TAG} 807271945287.dkr.ecr.us-east-1.amazonaws.com/hariapp"
         }
 
     stage('Docker push'){
             def DOCKER_TAG = getVersion()
-            sh "docker push 807271945287.dkr.ecr.us-east-1.amazonaws.com/hariapp:latest"
+            sh "docker push 807271945287.dkr.ecr.us-east-1.amazonaws.com/hariapp"
         }
   }
