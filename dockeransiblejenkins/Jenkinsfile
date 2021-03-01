@@ -7,7 +7,7 @@ pipeline {
   environment {
     imagename = "hariapp:${DOCKER_TAG}"
     DOCKER_TAG = getVersion()
-    ecrurl = "https://807271945287.dkr.ecr.us-east-1.amazonaws.com"
+    ecrurl = "807271945287.dkr.ecr.us-east-1.amazonaws.com"
     ecrcredentials = "ecr:us-east-1:madsen-lab-jenkinslab"
     }
   agent any
