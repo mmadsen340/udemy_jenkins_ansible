@@ -8,7 +8,6 @@ pipeline {
     imagename = "hariapp:${DOCKER_TAG}"
     DOCKER_TAG = getVersion()
     ecrurl = "807271945287.dkr.ecr.us-east-1.amazonaws.com"
-    ecrcredentials = "ecr:us-east-1:madsen-lab-jenkinslab"
     }
   agent any
   stages {
@@ -36,6 +35,12 @@ pipeline {
     stage('Push Docker Image') {
       steps{
         sh "docker push $ecrurl/$imagename"
+      }
+    }
+
+    stage('Remove Docker Images') {
+      steps{
+        sh "docker images -q | xargs --no-run-if-empty docker rmi"
       }
     }
   }
