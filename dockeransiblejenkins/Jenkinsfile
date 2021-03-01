@@ -7,9 +7,8 @@ pipeline {
   environment {
     imagename = "kammana/hariapp:${DOCKER_TAG}"
     DOCKER_TAG = getVersion()
-    ecrurl = "https://828556645578.dkr.ecr.us-east-2.amazonaws.com"
-    ecrcredentials = "ecr:us-east-2:ecr-ismail"
-    dockerImage = ''
+    ecrurl = "807271945287.dkr.ecr.us-east-1.amazonaws.com"
+    ecrcredentials = "ecr:us-east-1:madsen-lab-jenkinslab"
     }
   agent any
   stages {
@@ -31,6 +30,15 @@ pipeline {
     stage('Building image') {
       steps{
         sh "docker build dockeransiblejenkins/ -t $imagename"
+      }
+    }
+
+    stage('Push Docker Image') {
+      steps{
+        ecrLogin()
+        {
+           sh "docker push $ecrurl/$imagename"
+        }
       }
     }
   }
