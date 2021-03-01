@@ -26,7 +26,7 @@ pipeline {
     stage('Building image') {
       steps{
         script {
-          dockerImage = docker.build dockeransiblejenkins/ imagename
+          dockerImage = docker.build -f "dockeransiblejenkins/Dockerfile" imagename
         }
       }
     }
