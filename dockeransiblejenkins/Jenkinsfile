@@ -30,13 +30,13 @@ pipeline {
 
     stage('Building image') {
       steps{
-        sh "docker build dockeransiblejenkins/ -t $ecrurl/$repo_name-$imagename"
+        sh "docker build dockeransiblejenkins/ -t $ecrurl/$repo_name/$imagename"
       }
     }
 
     stage('Push Docker Image') {
       steps{
-        sh "docker push $ecrurl/$repo_name-$imagename"
+        sh "docker push $ecrurl/$repo_name/$imagename"
       }
     }
   }
